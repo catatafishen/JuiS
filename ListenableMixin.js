@@ -1,5 +1,8 @@
 "use strict";
-var ListenableMixin = function (nextListenable) {
+if (!JuiS) {
+    var JuiS = {};
+}
+var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
     var Listener = function (listensTo, handler, thisListenable) {
         this.listensTo = listensTo;  //Change so this can be an array
         this.active = true;
