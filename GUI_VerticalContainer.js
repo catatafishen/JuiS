@@ -1,6 +1,6 @@
 var GUI_VerticalContainer = function (callback) {
     "use strict";
-    this.spacing = "2px";
+    this.spacing = "0px";
     this.verticalAlign = "middle";
     this.initContainer();
     var layoutTable = document.createElement("TABLE");

@@ -123,4 +123,13 @@ this.createMiniStyleClass = function (element, pseudoClass) {
     return miniStyleClassName;
 };
 
-
+if (!JuiS) {
+    var JuiS = {};
+}
+JuiS.linearGradient = function() {
+    var args = Array.prototype.join.call(arguments, ",");
+    return "linear-gradient("+args+")";
+}
+JuiS.shadow = function(hShadow, vShadow, blur, color) {
+    return hShadow + " " +  vShadow + " " + blur + " " + color;
+};

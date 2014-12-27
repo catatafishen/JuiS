@@ -38,4 +38,4 @@ JuiS.AJAX = function(url, onResponse, parameters) {
         }
     };
     xhr.send(JSON.stringify(parameters));
-}
+};

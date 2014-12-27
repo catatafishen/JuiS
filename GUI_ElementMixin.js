@@ -97,6 +97,12 @@ var GUI_ElementMixin = function () {
             }
         });
     };
+    
+    this.changePaintFunction = function (name, paint, defaultValue) {
+        this.paintFunctions[name] = paint;
+        this.setProperty(name, defaultValue, "default");
+    }
+    
     this.addProperty = function (name, paint, defaultValue, allStates) {
         var thisElement = this;
         this.paintFunctions[name] = paint;
@@ -135,6 +141,7 @@ var GUI_ElementMixin = function () {
             this.setProperty(name, defaultValue, "default");
         }
     };
+    
     this.getActiveStateNames = function () {
         var activeStateNames = [];
         this.states.forEach(function (state) {
@@ -143,167 +150,53 @@ var GUI_ElementMixin = function () {
             }
         });
         return activeStateNames;
-    }
+    };
     
-    
-    //Position
-	this.position = "static";
-	this.left = "0px";
-	this.top = "0px";
-	this.bottom = "auto";
-	this.right = "auto";
-    this["float"] = "none";
+    this.getValueForEachState = function (property) {
+        var values = {};
+        this.states.forEach(function (state) {
+            values[state.getName()] = state.getProperty(property);
+        });
+        return values;
+    };
 
-	//Size
-	this.height = "auto";
-	this.width = "auto";
-
-	//Borders
-	this.borderLeftWidth = "0px";
-	this.borderTopWidth = "0px";
-	this.borderRightWidth = "0px";
-	this.borderBottomWidth = "0px";
-	this.borderLeftStyle = "solid";
-	this.borderTopStyle = "solid";
-	this.borderRightStyle = "solid";
-	this.borderBottomStyle = "solid";
-	this.borderLeftColor = "black";
-	this.borderTopColor = "black";
-	this.borderRightColor = "black";
-	this.borderBottomColor = "black";
-	this.borderTopLeftRadius = "0px";
-	this.borderTopRightRadius = "0px";
-	this.borderBottomLeftRadius = "0px";
-	this.borderBottomRightRadius = "0px";
-
-	//Padding
-	this.paddingLeft = "0px";
-	this.paddingTop = "0px";
-	this.paddingRight = "0px";
-	this.paddingBottom = "0px";
-
-	//Margins
-	this.marginLeft = "0px";
-	this.marginTop = "0px";
-	this.marginRight = "0px";
-	this.marginBottom = "0px";
-
-	//Background
-	// this.background = "";
-	// this.backgroundImage = "";
-	// this.backgroundPositionX = "center";
-	// this.backgroundPositionY = "center";
-	// this.backgroundRepeat = "no-repeat";
-	// this.backgroundColor = "transparent";
-
-
-    //Transforms
-    this.rotation = 0;
-    
-	//Other
-	this.opacity = "1.0";
-	this.overflowX = "auto";
-	this.overflowY = "auto";
-	this.visibility = "visible";
-	this.display = "block";
-	this.userSelect = "text";
-	this.title = "";
-	this.zIndex = "0";
-	this.cursor = "default";
-
-	this.getBorderController = function () {
-        var thisElement = this;
-        return {
-            "setWidth": function (width) {
-                thisElement.borderLeftWidth = width;
-                thisElement.borderTopWidth = width;
-                thisElement.borderRightWidth = width;
-                thisElement.borderBottomWidth = width;
-            },
-            "setStyle": function (style) {
-                thisElement.borderLeftStyle = style;
-                thisElement.borderTopStyle = style;
-                thisElement.borderLightStyle = style;
-                thisElement.borderBottomStyle = style;
-            },
-            "setColor": function (color) {
-                thisElement.borderLeftColor = color;
-                thisElement.borderTopColor = color;
-                thisElement.borderRightColor = color;
-                thisElement.borderBottomColor = color;
-            },
-            "setCornerRadius": function (radius) {
-                thisElement.borderTopLeftRadius = radius;
-                thisElement.borderTopRightRadius = radius;
-                thisElement.borderBottomLeftRadius = radius;
-                thisElement.borderBottomRightRadius = radius;
-            },
-            "getString": function (side) {
-                switch (side) {
-                case "left":
-                    return thisElement.borderLeftWidth + " " +
-                        thisElement.borderLeftStyle + " " +
-                        thisElement.borderLeftColor;
-                case "top":
-                    return thisElement.borderTopWidth + " " +
-                        thisElement.borderTopStyle + " " +
-                        thisElement.borderTopColor;
-                case "right":
-                    return thisElement.borderRightWidth + " " +
-                        thisElement.borderRightStyle + " " +
-                        thisElement.borderRightColor;
-                case "bottom":
-                    return thisElement.borderBottomWidth + " " +
-                        thisElement.borderBottomStyle + " " +
-                        thisElement.borderBottomColor;
-                default:
-                    throw new Error("Unknown side: " + side + ".");
+    this.createDOMEventRelay = function (DOMName, name) {
+        var obj = {};
+        obj.element = this;
+        obj.data = {};
+        obj.node = this.node;
+        obj.preventDefault = true;
+        obj.stopPropagation = true;
+        obj.node[DOMName] = function (event) {
+            //Only fire once per event. => ignore propagating events that have already fired
+            if (event.Henkka_inited === undefined) { //Not a good solution. Change this!
+                obj.data.DOMEvent = event;
+                obj.element.createEvent({"type": name, "data": obj.data});
+                event.Henkka_inited = true;
+                if (obj.stopPropagation) {
+                    event.stopPropagation();
+                }
+                if (obj.preventDefault !== false) {
+                    event.preventDefault();
+                    return false;
                 }
             }
         };
-	};
-
-    // var cssClasses = {};
-    // var styledElements = {};
-    // this.addStyledElement = function(element, elementCssClassName) {
-        // if (!elementCssClassName) {
-            // elementCounter += 1;
-            // var elementCssClassName = "element" + elementCounter;
-        // }
-        // var styleElement = document.createElement("style");
-        // var cssText = "";
-        // var cssTextHover = "";
-        // document.getElementsByTagName("head")[0].appendChild(styleElement);
-        // element.className = elementCssClassName;
-        // cssClasses[elementCssClassName] = styleElement;
-        // styledElements[elementCssClassName] = element;
-        // return elementCssClassName;
-    // };
- 
-    this.createDOMEventRelay = function (DOMName, name, data, node) {
-        var thisContainer = this;
-        node = node || this.node;
-        data = data || {};
-        node[DOMName] = function (event) {
-            //Only fire once per event. => ignore propagating events that have already fired
-            if (event.Henkka_inited === undefined) { //Not a good solution. Change this!
-                data.DOMEvent = event;
-                thisContainer.createEvent({"type": name, "data": data});
-                event.Henkka_inited = true;
-            }
-        };
+        return obj;
     };
+    
     var resizeSensor;
     var senseResize;
-    
     this.initElement = function (tagName) {
         tagName = tagName || "DIV";
         var thisElement = this;
         this.node = document.createElement(tagName);
+        var nodeStyle = this.node.style;
         
-        var nodeStyle = thisElement.node.style;
         var defaultState = this.addState("default");
         defaultState.activate();
+        
+        //Background
         this.addProperty("backgroundColor", nodeStyle, "transparent");
         this.addProperty("backgroundImage", nodeStyle, "");
         this.addProperty("backgroundPositionX", nodeStyle, "center");
@@ -315,17 +208,116 @@ var GUI_ElementMixin = function () {
             }
         }, "");
         
-        // this.addStyledElement(this.node);
+        //Borders
+        this.addProperty("borderLeftWidth", nodeStyle, "0px");
+        this.addProperty("borderTopWidth", nodeStyle, "0px");
+        this.addProperty("borderRightWidth", nodeStyle, "0px");
+        this.addProperty("borderBottomWidth", nodeStyle, "0px");
+        this.addProperty("borderWidth", function(value) {
+            thisElement.borderLeftWidth = value;
+            thisElement.borderTopWidth = value;
+            thisElement.borderRightWidth = value;
+            thisElement.borderBottomWidth = value;
+        }, "0px");
+        
+        this.addProperty("borderLeftStyle", nodeStyle, "solid");
+        this.addProperty("borderTopStyle", nodeStyle, "solid");
+        this.addProperty("borderRightStyle", nodeStyle, "solid");
+        this.addProperty("borderBottomStyle", nodeStyle, "solid");
+        this.addProperty("borderStyle", function(value) {
+            thisElement.borderLeftStyle = value;
+            thisElement.borderTopStyle = value;
+            thisElement.borderRightStyle = value;
+            thisElement.borderBottomStyle = value;
+        }, "solid");
+        
+        this.addProperty("borderLeftColor", nodeStyle, "black");
+        this.addProperty("borderTopColor", nodeStyle, "black");
+        this.addProperty("borderRightColor", nodeStyle, "black");
+        this.addProperty("borderBottomColor", nodeStyle, "black");
+        this.addProperty("borderColor", function(value) {
+            thisElement.borderLeftColor = value;
+            thisElement.borderTopColor = value;
+            thisElement.borderRightColor = value;
+            thisElement.borderBottomColor = value;
+        }, "black");
+        
+        this.addProperty("borderTopLeftRadius", nodeStyle, "0px");
+        this.addProperty("borderTopRightRadius", nodeStyle, "0px");
+        this.addProperty("borderBottomLeftRadius", nodeStyle, "0px");
+        this.addProperty("borderBottomRightRadius", nodeStyle, "0px");
+        this.addProperty("borderRadius", function(value) {
+            thisElement.borderTopLeftRadius = value;
+            thisElement.borderTopRightRadius = value;
+            thisElement.borderBottomLeftRadius = value;
+            thisElement.borderBottomRightRadius = value;
+        }, "0px");
+
+        //Margins
+        this.addProperty("marginLeft", nodeStyle, "0px");
+        this.addProperty("marginTop", nodeStyle, "0px");
+        this.addProperty("marginRight", nodeStyle, "0px");
+        this.addProperty("marginBottom", nodeStyle, "0px");
+        this.addProperty("margin", function(value) {
+            thisElement.marginLeft = value;
+            thisElement.marginTop = value;
+            thisElement.marginRight = value;
+            thisElement.marginBottom = value;
+        }, "0px");
+        
+        //Other
+        this.addProperty("opacity", nodeStyle, "1.0");
+        this.addProperty("boxShadow", nodeStyle, "none");
+        this.addProperty("overflowX", nodeStyle, "auto");
+        this.addProperty("overflowY", nodeStyle, "auto");
+        this.addProperty("overflow", function(value) {
+            thisElement.overflowX = value;
+            thisElement.overflowY = value;
+        }, "auto");
+        this.addProperty("visibility", nodeStyle, "visible");
+        this.addProperty("display", nodeStyle, "block");
+        this.addProperty("userSelect", nodeStyle, "text");
+        this.addProperty("title", nodeStyle, "");
+        this.addProperty("zIndex", nodeStyle, "0");
+        this.addProperty("cursor", nodeStyle, "default");
+                
+        //Padding
+        this.addProperty("paddingLeft", nodeStyle, "0px");
+        this.addProperty("paddingTop", nodeStyle, "0px");
+        this.addProperty("paddingRight", nodeStyle, "0px");
+        this.addProperty("paddingBottom", nodeStyle, "0px");
+        this.addProperty("padding", function(value) {
+            thisElement.paddingLeft = value;
+            thisElement.paddingTop = value;
+            thisElement.paddingRight = value;
+            thisElement.paddingBottom = value;
+        }, "0px");
+    
+        //Position
+        this.addProperty("position", nodeStyle, "static");
+        this.addProperty("left", nodeStyle, "auto");
+        this.addProperty("right", nodeStyle, "auto");
+        this.addProperty("top", nodeStyle, "auto");
+        this.addProperty("bottom", nodeStyle, "auto");
+        this.addProperty("float", nodeStyle, "none");
+
+        //Size
+        this.addProperty("height", nodeStyle, "auto");
+        this.addProperty("width", nodeStyle, "auto");
+
+        //Transforms
+        this.addProperty("rotation", nodeStyle, "0");
+        
+        //Events
         this.createDOMEventRelay("onclick", "click");
         this.createDOMEventRelay("onmousedown", "mouseDown");
         this.createDOMEventRelay("onmouseup", "mouseUp");
-        addMouseEnterEventListener(thisElement.node, function() {
+        addMouseEnterEventListener(this.node, function() {
             thisElement.createEvent({"type": "mouseEnter"});
         });
-        addMouseLeaveEventListener(thisElement.node, function() {
+        addMouseLeaveEventListener(this.node, function() {
             thisElement.createEvent({"type": "mouseLeave"});
         });
-        
         
         this.addListener("listenerAdded", function (event) {
             //If this has listeners for resize then create resize sensor and emitter
@@ -429,131 +421,9 @@ var GUI_ElementMixin = function () {
                 }
             }
         });
-        
-        
-        
     };
 
 	this.paint = function (newProperties, transition) {
-        var node = this.node;
-		if (newProperties) {
-			var i;
-			for (i in newProperties) {
-				if (newProperties.hasOwnProperty(i)) {
-					if (this[i] !== "undefined" && (typeof this[i] === typeof newProperties[i])) {
-						this[i] = newProperties[i];
-					}
-				}
-			}
-		}
-
-    //Transition on
-        if (!transition) {
-            transition = 0;
-        }
-        node.style.transition = "all " + transition + "ms ease 0ms"
-        
-   //Position
-		node.style.position = this.position;
-        if (resizeSensor) {
-            resizeSensor.style.position = this.position === "absolute" ? "absolute" : "relative";
-        }
-        if (senseResize) {
-            senseResize();
-        }
-		node.style.left = this.left;
-		node.style.top = this.top;
-		node.style.bottom = this.bottom;
-		node.style.right = this.right;
-        node.style.cssFloat = this["float"];
-
-	//Size
-		node.style.height = this.height;
-		node.style.width = this.width;
-
-	//Borders
-        var borderController = this.getBorderController();
-		node.style.borderLeft = borderController.getString("left");
-		node.style.borderTop = borderController.getString("top");
-		node.style.borderRight = borderController.getString("right");
-		node.style.borderBottom = borderController.getString("bottom");
-		node.style.borderTopLeftRadius = this.borderTopLeftRadius;
-		node.style.borderTopRightRadius = this.borderTopRightRadius;
-		node.style.borderBottomLeftRadius = this.borderBottomLeftRadius;
-		node.style.borderBottomRightRadius = this.borderBottomRightRadius;
-
-	//Padding
-		node.style.paddingLeft = this.paddingLeft;
-		node.style.paddingTop = this.paddingTop;
-		node.style.paddingRight = this.paddingRight;
-		node.style.paddingBottom = this.paddingBottom;
-
-	//Margins
-		node.style.marginLeft = this.marginLeft;
-		node.style.marginTop = this.marginTop;
-		node.style.marginRight = this.marginRight;
-
-	//Background
-		// node.style.backgroundImage = this.backgroundImage;
-		// node.style.backgroundPositionX = this.backgroundPositionX;
-		// node.style.backgroundPositionY = this.backgroundPositionY;
-		// node.style.backgroundRepeat = this.backgroundRepeat;
-		// // node.style.backgroundColor = this.backgroundColor;
-        // if (this.background) {
-            // node.style.background = this.background;
-        // }
-
-   //Transforms
-        // node.style.transform = "rotate(" + this.rotation + "deg)";
-        node.style.transform = this.rotation ? "rotate(" + this.rotation + "deg)" : "";
-        node.style.MsTransform = this.rotation ? "rotate(" + this.rotation + "deg)" : "";
-        node.style.WebkitTransform = this.rotation ? "rotate(" + this.rotation + "deg)" : "";
-        
-	//Other
-		node.style.opacity = this.opacity;
-		node.style.overflowX = this.overflowX;
-		node.style.overflowY = this.overflowY;
-		node.style.visibility = this.visibility;
-		node.style.display = this.display;
-		node.style.userSelect = this.userSelect;
-		node.title = this.title;
-		node.style.zIndex = this.zIndex;
-		node.style.cursor = this.cursor;
-        
-    //Transition off
-        setTimeout(function (){
-            node.style.transition = "all 0ms ease 0ms"
-        }, transition);
-        
-        // var styledElementsIterator = new Iterator(styledElements);
-        // styledElementsIterator.iterate(function (element, cssClassName) {
-            // var styleElement = cssClasses[cssClassName];
-            // var cssText = node.style.cssText;
-            // var css = "." + cssClassName + "{" + cssText + "}";
-            // if (styleElement.styleSheet) {
-                // styleElement.styleSheet.cssText = css;
-            // }
-            // else {
-                // styleElement.appendChild(document.createTextNode(css));
-            // }
-            // element.style.cssText = "";
-        // });
-        //Change the css-class associated with this element
-        // if (hover) {
-            // cssTextHover = this.node.style.cssText;
-        // } else {
-            // cssText = this.node.style.cssText;
-        // }
-        // var css = "." + nodeCssClassName + ":hover{" + cssTextHover + "}\n" + 
-            // "." + nodeCssClassName + "{" + cssText + "}";
-        // if (styleElement.styleSheet) {
-            // styleElement.styleSheet.cssText = css;
-        // }
-        // else {
-            // styleElement.appendChild(document.createTextNode(css));
-        // }
-        // this.node.style.cssText = "";
-        
+ 
 	};
-};
-GUI_ElementMixin.addMixin(ListenableMixin);
+}.addMixin(ListenableMixin);
