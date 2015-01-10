@@ -67,8 +67,7 @@ if (typeof Object.prototype.addMixin !== "function") {
                                                     //converted to an array
             var mixed = this;
             function recursivelyMixin(mixins) {
-                var mixinIterator = new Iterator(mixins);
-                mixinIterator.iterate(function (mixin) {
+                mixins.forEach(function (mixin) {
                     if (mixin.mixins !== undefined) {
                         recursivelyMixin(mixin.mixins);
                     }
@@ -133,3 +132,9 @@ JuiS.linearGradient = function() {
 JuiS.shadow = function(hShadow, vShadow, blur, color) {
     return hShadow + " " +  vShadow + " " + blur + " " + color;
 };
+JuiS.rgba = function(red, green, blue, opacity) {
+    return "rgba(" +  red + ", " + green + ", " + blue + ", " + opacity + ")";
+};
+JuiS.isArray = function(someVar) {
+    return (Object.prototype.toString.call(someVar) === "[object Array]")
+}

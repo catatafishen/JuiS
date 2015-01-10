@@ -1,47 +1,27 @@
 ﻿JuiS.Button = function (callback) {
     "use strict";
+    this.textContainer = document.createElement("SPAN");
     
-    this.initElement("a");
+    this.initElement("DIV");
     
     var thisButton =  this;
     var nodeStyle = this.node.style;
     nodeStyle.textDecoration = "none"
     nodeStyle.outline = "none";
-    nodeStyle.WebkitTouchCallout = "none";
-    nodeStyle.WebkitUserSelect = "none";
-    nodeStyle.KhtmlUserSelect = "none";
-    nodeStyle.MozUserSelect = "none";
-    nodeStyle.MsUserSelect = "none";
-    nodeStyle.userSelect = "none";
     
     this.node.href = "#";
     this.node.ondragstart = function() { return false; };
-    // this.node.onclick = function() { return false; };
-    var textContainer = document.createElement("SPAN");
-    this.node.appendChild(textContainer);
+    this.node.appendChild(this.textContainer);
 
-    //Add properties
-    this.addProperty("textColor", function(value) {nodeStyle.color = value;}, "#000000");
-    this.addProperty("font", function(value) {nodeStyle.fontFamily = value;}, "Courier New");
-    this.addProperty("fontSize", nodeStyle, "1em");
-    this.addProperty("textAlign", nodeStyle, "center");
-    this.addProperty("textRotation", nodeStyle, "0");
-    this.changePaintFunction("height", function(value) {
-        nodeStyle.height = value;
-        nodeStyle.lineHeight = value;
-    }, "Button");
-    this.addProperty("text", function(value) {
-        textContainer.innerHTML = "";
-        textContainer.appendChild(document.createTextNode(thisButton.text.replace(/ /g, "\u00a0")));
-    }, "Button");
     
     //Default values
     this.overflow = "visible";
+    this.cursor = "pointer";
     
     //Add states
-    var focusState = this.addState("focus");
-    var hoverState = this.addState("hover");
-    var pressedState = this.addState("pressed");
+    var focusState = this.createState("focus");
+    var hoverState = this.createState("hover");
+    var pressedState = this.createState("pressed");
 
     //Handle states
     this.addListener("mouseEnter", function () {
@@ -79,8 +59,24 @@
     //Add events
     this.createDOMEventRelay("onblur", "blur");
     this.createDOMEventRelay("onfocus", "focus");
+    var clickRelay = this.createDOMEventRelay("onclick", "click");
+    clickRelay.preventDefault = true;
     
     if (typeof callback.call === "function") {
         callback.call(this);
     }
-}.addMixin(GUI_ElementMixin);
+}.addMixin(JuiS.ElementMixin).addMixin(function StaticButton() {
+    this.addProperty("textColor", function(value) {this.node.style.color = value;});
+    this.addProperty("font", function(value) {this.node.style.fontFamily = value;});
+    this.addProperty("fontSize", "nodeStyle");
+    this.addProperty("textAlign", "nodeStyle");
+    this.addProperty("textRotation", "nodeStyle");
+    this.changePaintFunction("height", function(value) {
+        this.node.style.height = value;
+        this.node.style.lineHeight = value;
+    });
+    this.addProperty("text", function(value) {
+        this.textContainer.innerHTML = "";
+        this.textContainer.appendChild(document.createTextNode(this.text.replace(/ /g, "\u00a0")));
+    }, "Button");
+});

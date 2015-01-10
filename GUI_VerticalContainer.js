@@ -1,4 +1,4 @@
-var GUI_VerticalContainer = function (callback) {
+var GUI_VerticalContainer = JuiS.VerticalContainer = function (callback) {
     "use strict";
     this.spacing = "0px";
     this.verticalAlign = "middle";

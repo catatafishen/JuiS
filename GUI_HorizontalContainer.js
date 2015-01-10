@@ -1,4 +1,4 @@
-var GUI_HorizontalContainer = function (callback) {
+var GUI_HorizontalContainer = JuiS.HorizontalContainer = function (callback) {
     "use strict";
     this.spacing = "0px";
     this.verticalAlign = "middle";
@@ -44,5 +44,5 @@ var GUI_HorizontalContainer = function (callback) {
     if (callback.call) {
         callback.call(this);
     }
-    this.paint(callback);
+    // this.paint(callback);
 }.addMixin(GUI_ContainerMixin);

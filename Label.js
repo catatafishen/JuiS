@@ -1,25 +1,33 @@
 ﻿JuiS.Label = function (callback) {
     "use strict";
+    this.textContainer = document.createElement("SPAN");
     this.initElement();
-    var thisLabel = this;
-    var nodeStyle = this.node.style;
-    var textContainer = document.createElement("SPAN");
-    this.node.appendChild(textContainer);
+    this.node.appendChild(this.textContainer);
     
-    //Add properties
-    this.addProperty("textColor", function(value) {nodeStyle.color = value;}, "#000000");
-    this.addProperty("font", function(value) {nodeStyle.fontFamily = value;}, "Courier New");
-    this.addProperty("fontSize", nodeStyle, "1em");
-    this.addProperty("textAlign", nodeStyle, "left");
-    this.addProperty("textRotation", nodeStyle, "0");
-    this.addProperty("lineHeight", nodeStyle, "1em");
-    this.addProperty("textShadow", nodeStyle, "none");
-    this.addProperty("text", function(value) {
-        textContainer.innerHTML = "";
-        textContainer.appendChild(document.createTextNode(thisLabel.text.replace(/ /g, "\u00a0")));
-    }, "Button");
-    
-    if (callback.call) {
+    if (typeof callback === "function") {
         callback.call(this);
     }
-}.addMixin(GUI_ElementMixin);
+}.addMixin(JuiS.ElementMixin).addMixin(function StaticLabel() {
+    
+    //Add properties
+    this.addProperty("textColor", function(value) {this.node.style.color = value;});
+    this.addProperty("font", function(value) {this.node.style.fontFamily = value;});
+    this.addProperty("fontSize", "nodeStyle");
+    this.addProperty("fontWeight", "nodeStyle");
+    this.addProperty("textAlign", "nodeStyle");
+    this.addProperty("textRotation", "nodeStyle");
+    this.addProperty("lineHeight", "nodeStyle");
+    this.addProperty("textShadow", "nodeStyle");
+    this.addProperty("text", function(value) {
+        this.textContainer.innerHTML = "";
+        var text;
+        if (value === null) {
+            text = "null";
+        } else if (value === undefined) {
+            text = "";
+        } else {
+            text = value.toString();
+        }
+        this.textContainer.appendChild(document.createTextNode(text.replace(/ /g, "\u00a0")));
+    }, "Label");
+});

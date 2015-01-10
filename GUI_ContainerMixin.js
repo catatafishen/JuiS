@@ -31,11 +31,11 @@ var GUI_ContainerMixin = function () {
         return newChild;
 	};
 	this.nodeAddChild = function (child) {
-        child.node.style.display = "block";
+        // child.node.style.display = "block";
 		this.node.appendChild(child.node);
 	};
 	this.nodeReplaceChild = function (newChild, oldChild) {
-        child.node.style.display = "block";
+        // child.node.style.display = "block";
 		this.node.replaceChild(newChild.node, oldChild.node);
 	};
 	this.removeChild = function (child) {
@@ -58,4 +58,4 @@ var GUI_ContainerMixin = function () {
 		this.node.removeChild(child.node);
 	};
 };
-GUI_ContainerMixin.addMixin(GUI_ElementMixin);
+GUI_ContainerMixin.addMixin(JuiS.ElementMixin);
