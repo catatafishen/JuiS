@@ -9,7 +9,6 @@
     nodeStyle.textDecoration = "none"
     nodeStyle.outline = "none";
     
-    this.node.href = "#";
     this.node.ondragstart = function() { return false; };
     this.node.appendChild(this.textContainer);
 
@@ -17,6 +16,7 @@
     //Default values
     this.overflow = "visible";
     this.cursor = "pointer";
+    this.userSelect = "none";
     
     //Add states
     var focusState = this.createState("focus");

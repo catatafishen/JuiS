@@ -9,6 +9,27 @@
     
     var staticPaintFunctions = {};
     
+    this.getDefaultState = function () {
+        return this.states[this.states.length -2];
+    };
+    
+    this.changeNodeElement = function (tagName) {
+        var oldNode = this.node;
+        this.node = createNode(tagName);
+        
+        var i;
+        for (i = 0; i < oldNode.attributes.length; i++){
+            console.log(oldNode.attributes[i].nodeName);
+            this.node[oldNode.attributes[i].nodeName] = oldNode.attributes[i].nodeValue;
+        }
+        
+        // this.states.forEach(function (state) {
+            // state.deactivate();
+        // });
+        // staticState.activate();
+        this.getDefaultState().activate();
+    };
+    
     this.initElement = function (tagName) {
         var thisElement = this;
         this.node = createNode(tagName);
@@ -16,6 +37,7 @@
         staticState.setElement(this);
         this.states = [staticState];
         var defaultState = this.createState("default");
+        staticState.activate();
         defaultState.activate();
         
         //Events
@@ -80,6 +102,8 @@
                 if (value !== undefined && thisElement !== undefined && thisState.isActive()) {
                     thisElement.refreshProperty(property);
                 }
+            } else {
+                properties[property] === value;
             }
         };
         
@@ -107,7 +131,7 @@
         };
         
         this.activate = function () {
-            active = true;            
+            active = true;
             Object.keys(properties).forEach(function (property) {
                 if (properties[property] !== undefined) {
                     thisElement.refreshProperty(property);
@@ -183,18 +207,20 @@
         var value;
         var painted = false;
         this.states.every(function (state) {
-            if (state.isActive() && state.hasValue(property)) {
+            if (state.isActive() &&
+                ((Object.obesrver && state.hasProperty(property))
+                || state.hasValue(property))) {  
                 value = thisElement.paint(property, state.getProperty(property));
                 painted = true;
                 return false;
             }
             return true;
         });
-        // if (!painted && this.states.length > 0) {
-            // if (this.paintFunctions[property] === "nodeStyle") {
-                // this.node.style[property] = null;
-            // }
-        // }
+        
+        if (!Object.obesrver && !painted && this.states.length > 0) {
+            value = thisElement.paint(property, staticState.getProperty(property));
+        }
+        
         if (this.enablePaintEvents) {
             this.createEvent("paint", {"property": property, "value": value});
         }
@@ -347,9 +373,19 @@
     });
     this.addProperty("visibility", "nodeStyle");
     this.addProperty("display", "nodeStyle");
-    this.addProperty("title", "nodeStyle");
+    this.addProperty("title", function (value) {
+        this.node.title = value;
+    });
     this.addProperty("zIndex", "nodeStyle");
     this.addProperty("cursor", "nodeStyle");
+    this.addProperty("userSelect", function(value) {
+        var nodeStyle = this.node.style;
+        nodeStyle.WebkitUserSelect = value;
+        nodeStyle.KhtmlUserSelect = value;
+        nodeStyle.MozUserSelect = value;
+        nodeStyle.MsUserSelect = value;
+        nodeStyle.userSelect = value;
+    });
             
     //Padding
     this.addProperty("paddingLeft", "nodeStyle");

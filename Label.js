@@ -4,9 +4,12 @@
     this.initElement();
     this.node.appendChild(this.textContainer);
     
+    // this.textOverflow = "ellipsis";
+    
     if (typeof callback === "function") {
         callback.call(this);
     }
+    
 }.addMixin(JuiS.ElementMixin).addMixin(function StaticLabel() {
     
     //Add properties
@@ -18,6 +21,7 @@
     this.addProperty("textRotation", "nodeStyle");
     this.addProperty("lineHeight", "nodeStyle");
     this.addProperty("textShadow", "nodeStyle");
+    this.addProperty("textOverflow", "nodeStyle", "ellipsis");
     this.addProperty("text", function(value) {
         this.textContainer.innerHTML = "";
         var text;

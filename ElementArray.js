@@ -6,13 +6,18 @@
     var thatElementArray = this;
     this.default = this;
     
+    this.forEach = elements.forEach;
+    
+    this.truncate = function () {
+        elements = [];
+    };
+    
     this.addElement = function (element, autoRelay) {
         var index = elements.push(element) - 1;
         states.forEach(function (state) {
             properties.forEach(function (property) {
                 var value = thatElementArray[state][property];
                 if (JuiS.isArray(value)) {
-                    // console.log(element, state, property, value[index % value.length]);
                     element[state][property] = value[index % value.length];
                 } else {
                     element[state][property] = value;

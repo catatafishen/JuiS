@@ -129,8 +129,8 @@ JuiS.linearGradient = function() {
     var args = Array.prototype.join.call(arguments, ",");
     return "linear-gradient("+args+")";
 }
-JuiS.shadow = function(hShadow, vShadow, blur, color) {
-    return hShadow + " " +  vShadow + " " + blur + " " + color;
+JuiS.shadow = function(hShadow, vShadow, blur, spread, color, inset) {
+    return hShadow + " " +  vShadow + " " + blur + " " + spread + " " + color + " " + inset;
 };
 JuiS.rgba = function(red, green, blue, opacity) {
     return "rgba(" +  red + ", " + green + ", " + blue + ", " + opacity + ")";
