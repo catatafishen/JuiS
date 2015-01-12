@@ -5,7 +5,7 @@
     var nodeStyle = this.node.style;
     var initialAdd = true;
     var columns = [];
-    var fieldFactories = [];
+    var orderedByColumn;
     
     var rows = [];
     this.rows = new JuiS.ElementArray();
@@ -51,13 +51,23 @@
         }
     };
     
-    this.orderBy = function (columnName) {
+    var stringSort = function (a, b) {
+        if(a + "" < b + "") return -1;
+        if(a + "" > b + "") return 1;
+        return 0;
+    }
+    
+    this.orderBy = function (column, reverse) {
+        if (typeof column === "string") {
+            columns.some(function (searchColumn) {
+                if (searchColumn.name = column) {
+                    column = searchColumn;
+                    return true;
+                }
+            });
+        }
         this.truncate();
-        rows = rows.sort(function(a, b){
-            if(a.getRowData(columnName)+"" < b.getRowData(columnName)+"") return -1;
-            if(a.getRowData(columnName)+"" > b.getRowData(columnName)+"") return 1;
-            return 0;
-        });
+        column.sort();
         this.showRows(this.maxInitialRows);
     };
     
@@ -76,9 +86,10 @@
         this.truncate();
     };
     
-    this.addColumn = function (name, header, fieldFactory) {
-        columns.push(name);
-        fieldFactories.push(fieldFactory || null);
+    this.addColumn = function (column) {
+        columns.push(column);
+        column.fieldFactory = column.fieldFactory || labelFieldFactory;
+        column.sort = column.sort || stringSort;
         var cell = headerRow.insertCell(-1);
         cell.style.padding = "0px";
         var label = new JuiS.Label(function () {
@@ -94,11 +105,58 @@
                     cell.style.width = this.countHorisontalDisplacement();
                 }
             });
-            this.text = header;
+            this.text = column.text;
         });
         label.nextListenable = this;
+        label.on("click", function () {
+            thisSimpleTable.orderBy(column);
+        });
         headers[name] = label;
         cell.appendChild(label.node);
+        
+        var ascState = label.createState("asc");
+        var descState = label.createState("desc");
+        
+        label.cursor = "pointer";
+        
+        var showOrderIndicator = function (order) {
+            if (order === "asc") {
+                ascState.activate();
+                descState.deactivate();
+            } else {
+                ascState.deactivate();
+                descState.activate();
+            }
+        };
+        var hideOrderIndicator = function () {
+            ascState.deactivate();
+            descState.deactivate();
+        };
+        
+        column.noSort = function () {
+            hideOrderIndicator();
+            column.order = undefined;
+        }
+        
+        column.sort = function (reverse) {
+            if (orderedByColumn && orderedByColumn !== this) {
+                orderedByColumn.noSort();
+            }
+            orderedByColumn = this;
+            if (column.order === "desc" || (column.order === undefined && reverse === true)) {
+                column.order = "asc";
+            } else {
+                column.order = "desc";
+            }
+            rows.sort(function(a, b){
+                return stringSort(a.getRowData(column.key), b.getRowData(column.key));
+            });
+            if (column.order === "asc") {
+                rows.reverse();
+            }
+            showOrderIndicator(column.order);
+        }
+        
         return label;
     };
     
@@ -138,9 +196,9 @@
             thisRow = this,
             inited = false;
         
-        this.getRowData = function (column) {
-            if (column) {
-                return rowData[column];
+        this.getRowData = function (key) {
+            if (key) {
+                return rowData[key];
             }
             return rowData;
         }
@@ -158,13 +216,12 @@
         
         this.createColumns = function () {
             columns.forEach(function (column, index) {
-                var fieldFactory = fieldFactories[index] || labelFieldFactory;
-                thisRow.createColumn(column, fieldFactory);
+                thisRow.createColumn(column.key, column.fieldFactory);
             });
         };
         
-        this.createColumn = function(column, fieldFactory) {
-            var field = fieldFactory(column, rowData);
+        this.createColumn = function(key, fieldFactory) {
+            var field = fieldFactory(key, rowData);
             var cell = tableRow.insertCell(-1);
             cell.appendChild(field.node || field);
         };
@@ -198,5 +255,5 @@
         callback.call(this);
     }
 }.addMixin(JuiS.ElementMixin).addMixin(function staticSimpleTable() {
-    this.maxInitialRows = 500;
+    this.maxInitialRows = 30;
 });

@@ -130,6 +130,12 @@ JuiS.linearGradient = function() {
     return "linear-gradient("+args+")";
 }
 JuiS.shadow = function(hShadow, vShadow, blur, spread, color, inset) {
+    if (color  === undefined) {
+        color = "";
+    }
+    if (inset === undefined) {
+        inset = "";
+    }
     return hShadow + " " +  vShadow + " " + blur + " " + spread + " " + color + " " + inset;
 };
 JuiS.rgba = function(red, green, blue, opacity) {
