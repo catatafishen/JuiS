@@ -1,5 +1,5 @@
 ﻿"use strict";
-var GUI_ContainerMixin = function () {
+var GUI_ContainerMixin = JuiS.ContainerMixin = function () {
     this.initContainer = function () {
 		this.initElement();
         this.children = [];

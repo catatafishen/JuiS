@@ -1,22 +1,12 @@
 ﻿JuiS.Button = function (callback) {
     "use strict";
-    this.textContainer = document.createElement("SPAN");
-    
-    this.initElement("DIV");
-    
-    var thisButton =  this;
-    var nodeStyle = this.node.style;
-    nodeStyle.textDecoration = "none"
-    nodeStyle.outline = "none";
-    
-    this.node.ondragstart = function() { return false; };
-    this.node.appendChild(this.textContainer);
-
+    this.initElement("BUTTON");
     
     //Default values
     this.overflow = "visible";
     this.cursor = "pointer";
     this.userSelect = "none";
+    this.display = "block";
     
     //Add states
     var focusState = this.createState("focus");
@@ -62,9 +52,7 @@
     var clickRelay = this.createDOMEventRelay("onclick", "click");
     clickRelay.preventDefault = true;
     
-    if (typeof callback.call === "function") {
-        callback.call(this);
-    }
+    this.callback(arguments);
 }.addMixin(JuiS.ElementMixin).addMixin(function StaticButton() {
     this.addProperty("textColor", function(value) {this.node.style.color = value;});
     this.addProperty("font", function(value) {this.node.style.fontFamily = value;});
@@ -76,7 +64,7 @@
         this.node.style.lineHeight = value;
     });
     this.addProperty("text", function(value) {
-        this.textContainer.innerHTML = "";
-        this.textContainer.appendChild(document.createTextNode(this.text.replace(/ /g, "\u00a0")));
+        this.node.innerHTML = "";
+        this.node.appendChild(document.createTextNode(this.text.replace(/ /g, "\u00a0")));
     }, "Button");
 });

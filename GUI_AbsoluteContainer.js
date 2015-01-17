@@ -1,6 +1,4 @@
-var GUI_Container = JuiS.Container = function (callback) {
+var GUI_Container = JuiS.Container = function () {
     this.initContainer();
-    if (callback && callback.call) {
-        callback.call(this);
-    }
+    this.callback(arguments);
 }.addMixin(GUI_ContainerMixin);

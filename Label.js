@@ -1,14 +1,11 @@
 ﻿JuiS.Label = function (callback) {
     "use strict";
-    this.textContainer = document.createElement("SPAN");
-    this.initElement();
-    this.node.appendChild(this.textContainer);
-    
-    // this.textOverflow = "ellipsis";
-    
-    if (typeof callback === "function") {
-        callback.call(this);
-    }
+
+    // this.textContainer = document.createElement("LABEL");
+    this.initElement("LABEL");
+    this.display = "block";
+    // this.node.appendChild(this.textContainer);
+    this.callback(arguments);
     
 }.addMixin(JuiS.ElementMixin).addMixin(function StaticLabel() {
     
@@ -23,7 +20,7 @@
     this.addProperty("textShadow", "nodeStyle");
     this.addProperty("textOverflow", "nodeStyle", "ellipsis");
     this.addProperty("text", function(value) {
-        this.textContainer.innerHTML = "";
+        this.node.innerHTML = "";
         var text;
         if (value === null) {
             text = "null";
@@ -32,6 +29,20 @@
         } else {
             text = value.toString();
         }
-        this.textContainer.appendChild(document.createTextNode(text.replace(/ /g, "\u00a0")));
+        this.node.appendChild(document.createTextNode(text.replace(/ /g, "\u00a0")));
     }, "Label");
+    this.addProperty("for", function(node) {
+        function makeid() {
+            var text = "";
+            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for( var i=0; i < 5; i++ )
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
+            return text;
+        }
+        if (!(node instanceof Node)) {
+            node = node.node;
+        }
+        node.id = makeid();
+        this.node.htmlFor = node.id;
+    });
 });
