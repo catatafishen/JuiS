@@ -269,10 +269,6 @@
             return this.width;
         } else {
         return parseInt(this.width) +
-            parseInt(this.paddingLeft || 0) + 
-            parseInt(this.paddingRight || 0) + 
-            parseInt(this.borderLeftWidth || 0) + 
-            parseInt(this.borderRightWidth || 0) + 
             parseInt(this.marginLeft || 0) + 
             parseInt(this.marginRight || 0) + "px";
         }
@@ -386,6 +382,7 @@
     });
     this.addProperty("zIndex", "nodeStyle");
     this.addProperty("cursor", "nodeStyle");
+    this.addProperty("boxSizing", "nodeStyle", "border-box");
     this.addProperty("userSelect", function(value) {
         var nodeStyle = this.node.style;
         nodeStyle.WebkitUserSelect = value;

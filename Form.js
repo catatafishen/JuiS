@@ -7,6 +7,8 @@
     this.TextFields.relayProperty("width");
     this.TextFields.relayProperty("height");
     this.TextFields.relayProperty("margin");
+    this.TextFields.relayProperty("fontSize");
+    this.TextFields.relayProperty("font");
     
     
     var top = this.addChild(new JuiS.Container());
@@ -33,6 +35,7 @@
             fieldContainer.display = "inline-block";
         }
         label.for = field;
+        fieldContainer.align = "left";
         fieldContainer.addChild(label);
         fieldContainer.addChild(field);
         return fieldContainer;
@@ -57,6 +60,14 @@
     
     this.getElementArray = function (type) {
         return this[type + "s"];
+    };
+    
+    this.getValue = function () {
+        var value = {};
+        Object.keys(this.fields).forEach(function (key) {
+            value[key] = this.fields[key].getValue();
+        },this);
+        return value;
     };
     
     this.build = function (structure) {

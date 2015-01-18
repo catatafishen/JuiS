@@ -31,6 +31,7 @@
     });
     
     this.addListener("mouseDown", function () {
+        hoverState.deactivate();
         pressedState.activate();
         var mouseUpListener = this.addListener("mouseUp", function () {
             pressedState.deactivate();
