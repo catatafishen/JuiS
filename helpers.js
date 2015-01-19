@@ -47,6 +47,12 @@ Array.prototype.remove = function () {
     return this;
 };
 
+if (!Array.isArray) {
+  Array.isArray = function(arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+  };
+}
+
 if (!Object.keys) {
     Object.prototype.keys = function () {
         var keys = [];

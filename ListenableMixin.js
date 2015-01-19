@@ -4,11 +4,18 @@ if (!JuiS) {
 }
 var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
     var Listener = function (listensTo, handler, thisListenable) {
-        this.listensTo = listensTo;  //Change so this can be an array
+        this.listensTo = listensTo;
         this.active = true;
         var timesHandled = 0;
+        this.hears = function (event) {
+            if (typeof this.listensTo === "string") {
+                return (event.type === this.listensTo);
+            } else if (Array.isArray(this.listensTo)) {
+                return (this.listensTo.indexOf(event.type) !== -1);
+            }
+        }
         this.handle = function (event) {
-            if (this.active && event.type === this.listensTo) {
+            if (this.active && this.hears(event)) {
                 handler.call(thisListenable, event);
                 timesHandled += 1;
             }
