@@ -24,6 +24,7 @@
     
     this.fields = {};
     this.useColumns = false;
+    this.initialValues = {};
         
     this.callback(arguments);
 }.addMixin(GUI_ContainerMixin).addMixin(function StaticForm() {
@@ -70,6 +71,12 @@
         return value;
     };
     
+    this.reset = function () {
+        Object.keys(this.initialValues).forEach(function (key) {
+            this.fields[key].value = this.initialValues[key];
+        }, this);
+    };
+    
     this.build = function (structure) {
         var column = this.addColumn();
         structure.forEach(function(formElementDescription) {
@@ -84,7 +91,7 @@
             this.addFieldReference(formElementDescription.name, field);
             this.getElementArray(formElementDescription.type).addElement(field);
             Object.assign(field, formElementDescription);
-            
+            this.initialValues[formElementDescription.name] = formElementDescription.value;
             
             var fieldContainer = this.createFieldContainer(label, field, formElementDescription.labelPosition);
             
