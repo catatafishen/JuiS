@@ -72,8 +72,15 @@
     };
     
     this.reset = function () {
-        Object.keys(this.initialValues).forEach(function (key) {
+        Object.keys(this.fields).forEach(function (key) {
             this.fields[key].value = this.initialValues[key];
+        }, this);
+    };
+    
+    this.empty = function () {
+        Object.keys(this.fields).forEach(function (key) {
+            delete this.initialValues[key];
+            this.fields[key].value = "";
         }, this);
     };
     
