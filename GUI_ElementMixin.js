@@ -103,7 +103,7 @@
                     thisElement.refreshProperty(property);
                 }
             } else {
-                properties[property] === value;
+                properties[property] = value;
             }
         };
         
