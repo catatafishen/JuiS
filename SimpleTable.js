@@ -242,7 +242,6 @@
     var labelFieldFactory = function (key, rowData) {
         return new JuiS.Label(function () {
             this.text = rowData[key];
-            this.height = "100%";
             this.font = "arial";
             this.fontSize = "1em";
             this.overflow = "hidden";
