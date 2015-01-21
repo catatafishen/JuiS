@@ -1,39 +1,43 @@
-"use strict";
 if (!JuiS) {
     var JuiS = {};
 }
 var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
+    "use strict";
     var Listener = function (listensTo, handler, thisListenable) {
         this.listensTo = listensTo;
         this.active = true;
-        var timesHandled = 0;
+
         this.hears = function (event) {
             if (typeof this.listensTo === "string") {
                 return (event.type === this.listensTo);
             } else if (Array.isArray(this.listensTo)) {
                 return (this.listensTo.indexOf(event.type) !== -1);
             }
-        }
+        };
+
         this.handle = function (event) {
             if (this.active && this.hears(event)) {
                 handler.call(thisListenable, event);
-                timesHandled += 1;
             }
         };
     };
+
     var Event = this.Event = function (eventType, origin, data) {
+        var next;
         this.type = eventType;
         this.origin = origin;
         this.propagating = true;
         this.propagationPath = [origin];
         this.data = data;
-        var next;
+
         this.setNext = function (listenable) {
             next = listenable;
         };
+
         this.getNext = function () {
             return next;
         };
+
         this.propagate = function () {
             if (this.propagating) {
                 var next = this.getNext();
@@ -45,39 +49,38 @@ var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
             }
         };
     };
-    this.nextListenable = nextListenable;
+
     this.fire = function (event) {
-        if (this.listenerIterator) {
-            this.listenerIterator.iterate(function (listener) {
+        if (Array.isArray(this.listeners)) {
+            this.listeners.forEach(function (listener) {
                 listener.handle(event);
             });
         }
         event.propagate();
     };
+
     this.addListener = this.on = function (listensTo, handler) {
-        if (this.listeners === undefined) {
-            this.listeners = [];
-            this.listenerIterator = new Iterator(this.listeners);
-        }
         var listener = new Listener(listensTo, handler, this);
+        if (!Array.isArray(this.listeners)) {
+            this.listeners = [];
+        }
         this.listeners.push(listener);
         this.createEvent("listenerAdded", {"listener": listener});
         return listener;
     };
+
     this.removeListener = function (listener) {
-        this.listenerIterator.iterate(function (listener) {
-            //delete listener; //should remove element from array
-                             //Change: add such array-function
-        });
+        this.listeners.remove(listener);
     };
+
     this.createEvent = function (arg0, arg1) {
-        var type;
-        var data = {};
-        var nextListenable = this.nextListenable;
-        var propagate = true;
+        var type, event, data,
+            nextListenable = this.nextListenable,
+            propagate = true;
+
         if (typeof arg0 === "string") {
             type = arg0;
-            data = arg1 || data;
+            data = arg1 || {};
         } else {
             var argObj = arg0;
             type = argObj.type;
@@ -91,7 +94,8 @@ var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
                 propagate = argObj.propagate;
             }
         }
-        var event = new Event(type, this, data);
+
+        event = new Event(type, this, data);
         event.setNext(nextListenable);
         event.propagating = propagate;
         this.fire(event);
