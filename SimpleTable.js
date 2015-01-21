@@ -12,7 +12,9 @@
     this.rows.relayProperty("background");
     this.rows.relayProperty("height");
     this.rows.relayState("hover");
+    this.rows.relayState("selected");
     
+    var selectedRows = [];
     var headers = {};
     var table = document.createElement("TABLE");
     var visibleRows = 0;
@@ -26,6 +28,12 @@
     var tableFoot = table.createTFoot();
     this.node.appendChild(table);
 
+    var triggerSelectionChange = function () {
+        thisSimpleTable.trigger("selectionChange", selectedRows.map(function (row) {
+            return row.getRowData();
+        }));
+    }
+    
     var showingFootLoader = false;
     this.showFootLoader = function () {
         if (!showingFootLoader) {
@@ -191,8 +199,15 @@
         }
     };
     
+    this.clearSelection = function () {
+        selectedRows.forEach(function (row) {
+            row.unselect();
+        });
+    };
+    
     var RowElement = function (rowData) {
-        var tableRow,
+        var tableRow, selectedState,
+            selected = false,
             thisRow = this,
             inited = false;
         
@@ -222,19 +237,47 @@
         
         this.createColumn = function(key, fieldFactory) {
             var field = fieldFactory(key, rowData);
+            field.nextListenable = this;
             var cell = tableRow.insertCell(-1);
             cell.appendChild(field.node || field);
+        };
+        
+        this.select = function () {
+            if (thisSimpleTable.selection !== "none") {
+                if (thisSimpleTable.selection === "one") {
+                    thisSimpleTable.clearSelection();
+                }
+                selectedRows.push(this);
+                triggerSelectionChange();
+                selected = true;
+                selectedState.activate();
+            }
+        };
+        
+        this.unselect = function () {
+            selectedRows.remove(this);
+            triggerSelectionChange();
+            selected = false;
+            selectedState.deactivate();
         };
         
         this.createElement = function () {
             tableRow = tableBody.insertRow(-1);
             this.initElement(tableRow);
             var hoverState = this.createState("hover");
+            selectedState = this.createState("selected");
             this.on("mouseEnter", function () {
                 hoverState.activate();
             });
             this.on("mouseLeave", function () {
                 hoverState.deactivate();
+            });
+            this.on("click", function () {
+                if (!selected) {
+                    this.select();
+                } else {
+                    this.unselect();
+                }
             });
         };
     }.addMixin(JuiS.ElementMixin);
@@ -249,6 +292,13 @@
             this.paddingLeft = "3px";
         });
     };
+    
+    this.addProperty("selection", function(value) {
+        this.clearSelection();
+        if (value !== "none" && value !== "one" && value !== "many") {
+            throw new Error("selection property must be either 'none', 'one' or 'many'");
+        }
+    }, "none");
     
     this.callback(arguments);
 }.addMixin(JuiS.ElementMixin).addMixin(function staticSimpleTable() {
