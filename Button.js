@@ -2,17 +2,31 @@
     "use strict";
     this.initElement("BUTTON");
     
+    
     //Default values
     this.overflow = "visible";
     this.cursor = "pointer";
     this.userSelect = "none";
     this.display = "block";
+
     
     //Add states
     var focusState = this.createState("focus");
     var hoverState = this.createState("hover");
     var pressedState = this.createState("pressed");
+    var disabledState = this.createState("disabled");
 
+    //Add properties
+    this.addProperty("enabled", function (value) {
+        if (value) {
+            this.node.disabled = false;
+            disabledState.deactivate();
+        } else {
+            this.node.disabled = true;
+            disabledState.activate();
+        }
+    }, true);
+    
     //Handle states
     this.addListener("mouseEnter", function () {
         hoverState.activate();
@@ -31,20 +45,22 @@
     });
     
     this.addListener("mouseDown", function () {
-        hoverState.deactivate();
-        pressedState.activate();
-        var mouseUpListener = this.addListener("mouseUp", function () {
-            pressedState.deactivate();
-            mouseUpListener.active = false;
-            mouseEnterListener.active = false;
-            mouseLeaveListener.active = false;
-        });
-        var mouseLeaveListener = this.addListener("mouseLeave", function () {
-            pressedState.deactivate();
-        });
-        var mouseEnterListener = this.addListener("mouseEnter", function () {
+        if (this.enabled) {
+            hoverState.deactivate();
             pressedState.activate();
-        });
+            var mouseUpListener = this.addListener("mouseUp", function () {
+                pressedState.deactivate();
+                mouseUpListener.active = false;
+                mouseEnterListener.active = false;
+                mouseLeaveListener.active = false;
+            });
+            var mouseLeaveListener = this.addListener("mouseLeave", function () {
+                pressedState.deactivate();
+            });
+            var mouseEnterListener = this.addListener("mouseEnter", function () {
+                pressedState.activate();
+            });
+        }
     });
 
     //Add events
@@ -52,6 +68,19 @@
     this.createDOMEventRelay("onfocus", "focus");
     var clickRelay = this.createDOMEventRelay("onclick", "click");
     clickRelay.preventDefault = true;
+    
+    // this.addProperty("enabled", function(value) {
+        // if (value === true) {
+            // this.node.disabled = false;
+            // disabledState.deactivate();
+        // } else {
+            // this.node.disabled = true;
+            // disabledState.activate();            
+        // }
+    // }, "asd");
+    
+
+    
     
     this.callback(arguments);
 }.addMixin(JuiS.ElementMixin).addMixin(function StaticButton() {
