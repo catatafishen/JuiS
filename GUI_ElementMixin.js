@@ -164,7 +164,9 @@
     };
     
     this.addProperty = function (propertyName, paintFunction, defaultValue) {
+        var isStatic = true;
         if (this.paintFunctions) {
+            isStatic = false;
             this.paintFunctions[propertyName] = paintFunction;
         } else {
             staticPaintFunctions[propertyName] = paintFunction;
@@ -199,7 +201,11 @@
             },
             enumerable: true
         });
-        staticState.addProperty(propertyName, defaultValue);
+        if (isStatic) {
+            staticState.addProperty(propertyName, defaultValue);
+        } else {
+            this.states[this.states.length - 2].addProperty(propertyName, defaultValue);
+        }
     };
     
     this.refreshProperty = function (property) {
