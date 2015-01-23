@@ -94,7 +94,7 @@
         this.truncate();
     };
     
-    this.addColumn = function (column) {
+    this.addColumn = function (column, styler) {
         columns.push(column);
         column.fieldFactory = column.fieldFactory || labelFieldFactory;
         column.sort = column.sort || stringSort;
@@ -102,47 +102,47 @@
         cell.style.padding = "0px";
         var label = new JuiS.Label(function () {
             this.enablePaintEvents = true;
+            this.on("click", function () {
+                thisSimpleTable.orderBy(column);
+            });
+            var ascState = this.createState("asc");
+            var descState = this.createState("desc");
+            this.cursor = "pointer";
+            this.width = "auto";
             this.on("paint", function (event) {
                 if (event.data.property === "width"
-                    || event.data.property === "borderLeftWidth"
-                    || event.data.property === "borderRightWidth"
                     || event.data.property === "marginLeft"
-                    || event.data.property === "marginRight"
-                    || event.data.property === "paddingLeft"
-                    || event.data.property === "paddingRight") {
+                    || event.data.property === "marginRight") {
                     cell.style.width = this.countHorisontalDisplacement();
                 }
             });
+            if (typeof styler === "function") {
+                styler.call(this);
+            }
             this.text = column.text;
+            this.showOrderIndicator = function (order) {
+                if (order === "asc") {
+                    ascState.activate();
+                    descState.deactivate();
+                } else {
+                    ascState.deactivate();
+                    descState.activate();
+                }
+            };
+            
+            this.hideOrderIndicator = function () {
+                ascState.deactivate();
+                descState.deactivate();
+            };
         });
-        label.nextListenable = this;
-        label.on("click", function () {
-            thisSimpleTable.orderBy(column);
-        });
+        
         headers[name] = label;
         cell.appendChild(label.node);
+        label.nextListenable = this;
         
-        var ascState = label.createState("asc");
-        var descState = label.createState("desc");
-        
-        label.cursor = "pointer";
-        
-        var showOrderIndicator = function (order) {
-            if (order === "asc") {
-                ascState.activate();
-                descState.deactivate();
-            } else {
-                ascState.deactivate();
-                descState.activate();
-            }
-        };
-        var hideOrderIndicator = function () {
-            ascState.deactivate();
-            descState.deactivate();
-        };
         
         column.noSort = function () {
-            hideOrderIndicator();
+            label.hideOrderIndicator();
             column.order = undefined;
         }
         
@@ -162,7 +162,7 @@
             if (column.order === "asc") {
                 rows.reverse();
             }
-            showOrderIndicator(column.order);
+            label.showOrderIndicator(column.order);
         }
         
         return label;
