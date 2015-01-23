@@ -68,6 +68,11 @@
         Object.keys(this.fields).forEach(function (key) {
             value[key] = this.fields[key].getValue();
         },this);
+        Object.keys(this.initialValues).forEach(function (key) {
+            if (value[key] === undefined) {
+                value[key] = this.initialValues[key];
+            }
+        },this);
         return value;
     };
     
@@ -82,6 +87,11 @@
             delete this.initialValues[key];
             this.fields[key].value = "";
         }, this);
+    };
+    
+    this.populate = function (data) {
+        this.initialValues = data;
+        this.reset();
     };
     
     this.build = function (structure) {
