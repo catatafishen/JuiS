@@ -22,7 +22,7 @@ var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
         };
     };
 
-    var Event = this.Event = function (eventType, origin, data) {
+    var Event = function (eventType, origin, data) {
         var next;
         this.type = eventType;
         this.origin = origin;
@@ -73,8 +73,8 @@ var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
         this.listeners.remove(listener);
     };
 
-    this.createEvent = function (arg0, arg1) {
-        var type, event, data,
+    this.createEvent = this.trigger = function (arg0, arg1) {
+        var type, event, data, argObj,
             nextListenable = this.nextListenable,
             propagate = true;
 
@@ -82,7 +82,7 @@ var ListenableMixin = JuiS.ListenableMixin = function (nextListenable) {
             type = arg0;
             data = arg1 || {};
         } else {
-            var argObj = arg0;
+            argObj = arg0;
             type = argObj.type;
             if (argObj.data !== undefined) {
                 data = argObj.data;

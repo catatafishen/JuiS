@@ -1,10 +1,8 @@
-﻿JuiS.Label = function (callback) {
+﻿JuiS.Label = function () {
     "use strict";
 
-    // this.textContainer = document.createElement("LABEL");
     this.initElement("LABEL");
     this.display = "block";
-    // this.node.appendChild(this.textContainer);
     this.callback(arguments);
     
 }.addMixin(JuiS.ElementMixin).addMixin(function StaticLabel() {
