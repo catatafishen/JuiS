@@ -91,7 +91,7 @@
     this.addProperty("textRotation", "nodeStyle");
     this.changePaintFunction("height", function(value) {
         this.node.style.height = value;
-        this.node.style.lineHeight = value;
+        // this.node.style.lineHeight = value;
     });
     this.addProperty("text", function(value) {
         this.node.innerHTML = "";
