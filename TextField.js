@@ -4,6 +4,12 @@ JuiS.TextField = function (callback) {
     this.initElement("input");
     this.node.type = "text";
     
+    this.createDOMEventRelay("onfocus", "focus");
+    this.createDOMEventRelay("onblur", "blur");
+    this.createDOMEventRelay("change", "change");
+    this.createDOMEventRelay("oninput", "input");
+    this.createDOMEventRelay("onsearch", "search");
+    
     this.callback(arguments);
     
 }.addMixin(JuiS.ElementMixin).addMixin(function StaticLabel() {
@@ -17,13 +23,9 @@ JuiS.TextField = function (callback) {
     this.addProperty("lineHeight", "nodeStyle");
     this.addProperty("textShadow", "nodeStyle");
     this.addProperty("textOverflow", "nodeStyle", "ellipsis");
-    this.addProperty("hideContent", function(value) {
-        if (value === true) {
-            this.node.type = "password";
-        } else {
-            this.node.type = "text";
-        }
-    }, "");
+    this.addProperty("type", function(value) {
+        this.node.type = value;
+    }, "text");
     
     this.addProperty("value", function(value) {
         this.node.value = value;
