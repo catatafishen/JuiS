@@ -13,6 +13,16 @@
         return this.states[this.states.length -2];
     };
     
+    this.getProperties = function () {
+        return Object.keys(staticPaintFunctions).concat(Object.keys(this.paintFunctions));
+    };
+    
+    this.getStates = function () {
+        return this.states.map(function (state) {
+            return state.getName();
+        });
+    };
+    
     this.changeNodeElement = function (tagName) {
         var oldNode = this.node;
         this.node = createNode(tagName);
@@ -196,7 +206,7 @@
                     }
                     return valueIsSet;
                 })) {
-                    this.states[this.states.length - 2].setProperty(propertyName, newValue);
+                    this.getDefaultState().setProperty(propertyName, newValue);
                 }
             },
             enumerable: true
@@ -204,7 +214,7 @@
         if (isStatic) {
             staticState.addProperty(propertyName, defaultValue);
         } else {
-            this.states[this.states.length - 2].addProperty(propertyName, defaultValue);
+            this.getDefaultState().addProperty(propertyName, defaultValue);
         }
     };
     

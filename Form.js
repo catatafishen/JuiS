@@ -2,14 +2,8 @@
     "use strict";
     this.initContainer();
     
-    this.TextFields = new JuiS.ElementArray();
-    this.TextFields.relayProperty("backgroundColor");
-    this.TextFields.relayProperty("width");
-    this.TextFields.relayProperty("height");
-    this.TextFields.relayProperty("margin");
-    this.TextFields.relayProperty("fontSize");
-    this.TextFields.relayProperty("font");
-    
+    this.TextFields = new JuiS.ElementArray(JuiS.TextField);
+    this.TextFields.init();
     
     var top = this.addChild(new JuiS.Container());
     this.header = top.addChild(new JuiS.Label());
@@ -83,8 +77,8 @@
     };
     
     this.empty = function () {
+        this.initialValues = {};
         Object.keys(this.fields).forEach(function (key) {
-            delete this.initialValues[key];
             this.fields[key].value = "";
         }, this);
     };

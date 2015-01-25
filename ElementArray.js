@@ -1,9 +1,10 @@
-﻿JuiS.ElementArray = function () {
+﻿JuiS.ElementArray = function (componentContructor) {
     "use strict";
     var elements = [];
     var properties = [];
     var states = ["default"];
     var thatElementArray = this;
+    var setProperties = {};
     this.default = this;
     
     this.forEach = elements.forEach;
@@ -12,11 +13,29 @@
         elements = [];
     };
     
+    var inited = false;
+    
+    this.init = function (element) {
+        if (!inited) {
+            element.getProperties().forEach(function (property) {
+                relayProperty(property, element[property]);
+            }, this);
+            element.getStates().forEach(function (state) {
+                relayState(state);
+            }, this);
+            inited = true;
+        }
+    };
+    
     this.addElement = function (element, autoRelay) {
+        if (!inited) {
+            this.init(element);
+        }
         var index = elements.push(element) - 1;
-        states.forEach(function (state) {
-            properties.forEach(function (property) {
-                var value = thatElementArray[state][property];
+        Object.keys(setProperties).forEach(function (state) {
+            Object.keys(setProperties[state]).forEach(function (property) {
+                // var value = thatElementArray[state][property];
+                var value = setProperties[state][property];
                 if (JuiS.isArray(value)) {
                     element[state][property] = value[index % value.length];
                 } else {
@@ -50,23 +69,23 @@
         });
     };
     
-    this.relayProperty = function (propertyName, defaultValue) {
+    var relayProperty = function (propertyName, defaultValue) {
         properties.push(propertyName);
         states.forEach(function (state) {
-            createAccessor(state, propertyName, defaultValue);
+            createAccessor(state, propertyName);
         });
     };
     
-    this.relayState = function (stateName) {
+    var relayState = function (stateName) {
         states.push(stateName);
-        this[stateName] = {};
+        thatElementArray[stateName] = {};
         properties.forEach(function (property) {
             createAccessor(stateName, property);
         });
     };
     
-    function createAccessor(stateName, propertyName, defaultValue) {
-        var value = defaultValue;
+    function createAccessor(stateName, propertyName) {
+        var value;
         Object.defineProperty(thatElementArray[stateName], propertyName, {
             get: function () {
                 //If we have no value use whatever is currently set on the first element
@@ -76,7 +95,11 @@
                 return value;
             },
             set: function (newValue) {
+                if (!setProperties[stateName]) {
+                    setProperties[stateName] = {};
+                }
                 value = newValue;
+                setProperties[stateName][propertyName] = value;
                 if (JuiS.isArray(newValue)) {
                     elements.forEach(function(element, index) {
                         element[stateName][propertyName] = value[index % value.length];
@@ -96,4 +119,7 @@
             return element.createDOMEventRelay(DOMName, name);
         });
     };
+    if (typeof componentContructor === "function") {
+        this.init(new componentContructor());
+    }
 };
