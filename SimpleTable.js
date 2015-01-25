@@ -7,13 +7,9 @@
     var columns = [];
     var orderedByColumn;
     
+    var filteredRows;
     var rows = [];
-    this.rows = new JuiS.ElementArray();
-    this.rows.relayProperty("background");
-    this.rows.relayProperty("height");
-    this.rows.relayState("hover");
-    this.rows.relayState("selected");
-    
+
     var selectedRows = [];
     var headers = {};
     var table = document.createElement("TABLE");
@@ -24,6 +20,7 @@
     table.style.borderCollapse = "collapse";
     var header = table.createTHead();
     var headerRow = header.insertRow(-1);
+    var filterRow = header.insertRow(-1);
     var tableBody = table.createTBody();
     var tableFoot = table.createTFoot();
     this.node.appendChild(table);
@@ -65,17 +62,60 @@
         return 0;
     }
     
+    this.getColumnByKey = function (key) {
+        var column;
+        columns.some(function (searchColumn) {
+            if (searchColumn.key === key) {
+                column = searchColumn;
+                return true;
+            }
+        });
+        return column;
+    };
+    
     this.orderBy = function (column, reverse) {
         if (typeof column === "string") {
-            columns.some(function (searchColumn) {
-                if (searchColumn.name = column) {
-                    column = searchColumn;
-                    return true;
-                }
-            });
+            column = this.getColumnByKey(column);
         }
         this.truncate();
         column.sort();
+        this.showRows(this.maxInitialRows);
+    };
+    
+    var filters = {};
+    this.filter = function (key, filter) {
+        var filterFunction = function (value, filter) {
+            var value = "" + value; //Ensure value is a string
+            if (typeof filter !== "string" || filter === "") {
+                return true;
+            }
+            value = value.toLowerCase();
+            filter = filter.toLowerCase();
+            return (value.indexOf(filter) >= 0);
+        }
+        filters[key] = filter;
+        this.truncate();
+        filteredRows = [];
+        rows.forEach(function (row, index, filterArray) {
+            var rowData = row.getRowData();
+            var goingToAdd = true;
+            Object.keys(filters).forEach(function (key) {
+                if (goingToAdd === false) {
+                    return;
+                }
+                var value = rowData[key];
+                var column = thisSimpleTable.getColumnByKey(key);
+                if (typeof column.getValue === "function") {
+                    value = column.getValue(key, rowData);
+                }
+                if (!filterFunction(value, filters[key])) {
+                    goingToAdd = false;
+                }                
+            });
+            if (goingToAdd) {
+                filteredRows.push(row);
+            }
+        });
         this.showRows(this.maxInitialRows);
     };
     
@@ -90,16 +130,18 @@
     
     this.empty = function () {
         initialAdd = true;
+        filteredRows;
         rows = [];
         this.truncate();
+        this.filters.value = "";
     };
     
-    this.addColumn = function (column, styler) {
+    this.addColumn = function (column) {
         columns.push(column);
         column.fieldFactory = column.fieldFactory || labelFieldFactory;
-        column.sort = column.sort || stringSort;
         var cell = headerRow.insertCell(-1);
         cell.style.padding = "0px";
+        cell.style.width = column.width;
         var label = new JuiS.Label(function () {
             this.enablePaintEvents = true;
             this.on("click", function () {
@@ -116,8 +158,8 @@
                     cell.style.width = this.countHorisontalDisplacement();
                 }
             });
-            if (typeof styler === "function") {
-                styler.call(this);
+            if (typeof column.headerStyler === "function") {
+                column.headerStyler.call(this);
             }
             this.text = column.text;
             this.showOrderIndicator = function (order) {
@@ -140,6 +182,17 @@
         cell.appendChild(label.node);
         label.nextListenable = this;
         
+        var filterCell = filterRow.insertCell(-1);
+        filterCell.style.padding = "0px";
+        if (column.filter) {
+            var filterComponent = new JuiS.TextField(function () {
+                this.on("input", function() {
+                    thisSimpleTable.filter(column.key, this.getValue());
+                });
+            });
+            this.filters.addElement(filterComponent);
+            filterCell.appendChild(filterComponent.node);
+        }
         
         column.noSort = function () {
             label.hideOrderIndicator();
@@ -156,16 +209,28 @@
             } else {
                 column.order = "desc";
             }
-            rows.sort(function(a, b){
-                return stringSort(a.getRowData(column.key), b.getRowData(column.key));
-            });
+            
+            var sortFunction = function(a, b) {
+                var aValue = (typeof column.getValue === "function") ?
+                    column.getValue(column.key, a.getRowData()) :
+                    a.getRowData(column.key);
+                var bValue = (typeof column.getValue === "function") ?
+                    column.getValue(column.key, b.getRowData()) :
+                    b.getRowData(column.key);
+                return stringSort(aValue, bValue);
+            };
+            rows.sort(sortFunction);
             if (column.order === "asc") {
                 rows.reverse();
             }
+            if (filteredRows) {
+                filteredRows.sort(sortFunction);
+                if (column.order === "asc") {
+                    filteredRows.reverse();
+                }
+            }
             label.showOrderIndicator(column.order);
-        }
-        
-        return label;
+        };
     };
     
     this.addRows = function (rows) {
@@ -184,14 +249,15 @@
     this.showRows = function (qty) {
         var qty = qty || this.maxInitialRows;
         var rowIndex;
+        var rowsShowing = filteredRows || rows;
         var showingAll = false;
         for (rowIndex = visibleRows; rowIndex < visibleRows + qty; rowIndex += 1) {
-            if (rows[rowIndex] === undefined) {
+            if (rowsShowing[rowIndex] === undefined) {
                 showingAll = true;
                 this.hideFootLoader();
                 break;
             }
-            rows[rowIndex].addToTable();
+            rowsShowing[rowIndex].addToTable();
         }
         visibleRows = rowIndex;
         if (!showingAll) {
@@ -284,21 +350,40 @@
     
     var labelFieldFactory = function (key, rowData) {
         return new JuiS.Label(function () {
-            this.text = rowData[key];
+            var column = thisSimpleTable.getColumnByKey(key);
+            if (typeof column.getValue === "function") {
+                this.text = column.getValue(key, rowData);
+            } else {
+                this.text = rowData[key];
+            }
             this.font = "arial";
             this.fontSize = "1em";
             this.overflow = "hidden";
-            this.title = rowData[key];
+            this.title = this.text;
             this.paddingLeft = "3px";
         });
     };
     
-    this.addProperty("selection", function(value) {
+    this.addProperty("selection", function (value) {
         this.clearSelection();
         if (value !== "none" && value !== "one" && value !== "many") {
             throw new Error("selection property must be either 'none', 'one' or 'many'");
         }
     }, "none");
+    
+    this.addProperty("showFilters", function (value) {
+        if (value === true) {
+            filterRow.style.display = "table-row";
+        } else {
+            filterRow.style.display = "none";
+        }
+    });
+    
+    this.rows = new JuiS.ElementArray();
+    var dummyRow = new RowElement();
+    dummyRow.createElement();
+    this.rows.init(dummyRow);
+    this.filters = new JuiS.ElementArray(JuiS.TextField);
     
     this.callback(arguments);
 }.addMixin(JuiS.ElementMixin).addMixin(function staticSimpleTable() {
