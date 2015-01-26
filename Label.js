@@ -16,6 +16,7 @@
     this.addProperty("textRotation", "nodeStyle");
     this.addProperty("lineHeight", "nodeStyle");
     this.addProperty("textShadow", "nodeStyle");
+    this.addProperty("whiteSpace", "nodeStyle", "nowrap");
     this.addProperty("textOverflow", "nodeStyle", "ellipsis");
     this.addProperty("text", function(value) {
         this.node.innerHTML = "";
