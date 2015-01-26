@@ -433,6 +433,10 @@
     //Size
     this.addProperty("height", "nodeStyle");
     this.addProperty("width", "nodeStyle");
+    this.addProperty("minHeight", "nodeStyle");
+    this.addProperty("minWidth", "nodeStyle");
+    this.addProperty("maxHeight", "nodeStyle");
+    this.addProperty("maxWidth", "nodeStyle");
 
     //Transforms
     this.addProperty("rotation", "nodeStyle");
