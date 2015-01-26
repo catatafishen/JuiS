@@ -151,13 +151,6 @@
             var descState = this.createState("desc");
             this.cursor = "pointer";
             this.width = "auto";
-            this.on("paint", function (event) {
-                if (event.data.property === "width"
-                    || event.data.property === "marginLeft"
-                    || event.data.property === "marginRight") {
-                    cell.style.width = this.countHorisontalDisplacement();
-                }
-            });
             if (typeof column.headerStyler === "function") {
                 column.headerStyler.call(this);
             }
