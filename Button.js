@@ -89,6 +89,7 @@
     this.addProperty("fontSize", "nodeStyle");
     this.addProperty("textAlign", "nodeStyle");
     this.addProperty("textRotation", "nodeStyle");
+    this.addProperty("textDecoration", "nodeStyle");
     this.changePaintFunction("height", function(value) {
         this.node.style.height = value;
         // this.node.style.lineHeight = value;
