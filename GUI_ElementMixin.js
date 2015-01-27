@@ -44,8 +44,9 @@
         var thisElement = this;
         this.node = createNode(tagName);
         this.paintFunctions = {};
+        this.states = [];
         staticState.setElement(this);
-        this.states = [staticState];
+        this.states.push(staticState);
         var defaultState = this.createState("default");
         staticState.activate();
         defaultState.activate();
@@ -67,11 +68,23 @@
         var thisState = this;
         var properties = {};
         var active = false;
+        var staticAddList = [];
+        var alreadyRefreshed = [];
         
         if (Object.observe) {
             Object.observe(properties, function(changes) {
                 changes.forEach(function (change) {
-                    thisElement.refreshProperty(change.name);
+                    if (change.type === "update" || change.type === "delete") {
+                        thisElement.refreshProperty(change.name);
+                    }
+                    else if (thisElement === undefined) {
+                        //If element is not inited new properties are queued and refreshed later in the setElement-method
+                        staticAddList.push(change.name);
+                    } else {
+                        if (alreadyRefreshed.indexOf(change.name) === -1) {
+                            thisElement.refreshProperty(change.name);
+                        }
+                    }
                 });
             });
         }
@@ -91,8 +104,12 @@
                     if (!thisState.hasProperty(key))
                         thisState.addProperty(key);
                 });
+            } else {
+                var property;
+                while (property = staticAddList.pop()) {
+                    thisElement.refreshProperty(property);
+                }
             }
-            
         };
         
         this.addProperty = function (property, value) {
@@ -114,6 +131,10 @@
                 }
             } else {
                 properties[property] = value;
+                if (thisElement && value) {
+                    alreadyRefreshed.push(property);
+                    thisElement.refreshProperty(property);
+                }
             }
         };
         
