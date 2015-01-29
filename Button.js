@@ -44,11 +44,11 @@
         focusState.deactivate();
     });
     
-    this.addListener("mouseDown", function () {
+    this.addListener("mousedown", function () {
         if (this.enabled) {
             hoverState.deactivate();
             pressedState.activate();
-            var mouseUpListener = this.addListener("mouseUp", function () {
+            var mouseUpListener = this.addListener("mouseup", function () {
                 pressedState.deactivate();
                 mouseUpListener.active = false;
                 mouseEnterListener.active = false;
