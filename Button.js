@@ -64,9 +64,9 @@
     });
 
     //Add events
-    this.createDOMEventRelay("onblur", "blur");
-    this.createDOMEventRelay("onfocus", "focus");
-    var clickRelay = this.createDOMEventRelay("onclick", "click");
+    this.createDOMEventRelay("blur");
+    this.createDOMEventRelay("focus");
+    var clickRelay = this.createDOMEventRelay("click");
     clickRelay.preventDefault = true;
     
     // this.addProperty("enabled", function(value) {

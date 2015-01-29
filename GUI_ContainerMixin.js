@@ -6,7 +6,7 @@ var GUI_ContainerMixin = JuiS.ContainerMixin = function () {
         this.views = {};
         this.createView("default");
         this.showView("default");
-        this.createDOMEventRelay("onscroll", "scroll");
+        this.createDOMEventRelay("scroll");
     };
     
     this.addProperty("align", function(value) {

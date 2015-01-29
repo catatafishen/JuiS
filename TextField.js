@@ -4,11 +4,11 @@ JuiS.TextField = function (callback) {
     this.initElement("input");
     this.node.type = "text";
     
-    this.createDOMEventRelay("onfocus", "focus");
-    this.createDOMEventRelay("onblur", "blur");
-    this.createDOMEventRelay("change", "change");
-    this.createDOMEventRelay("oninput", "input");
-    this.createDOMEventRelay("onsearch", "search");
+    this.createDOMEventRelay("focus");
+    this.createDOMEventRelay("blur");
+    this.createDOMEventRelay("change");
+    this.createDOMEventRelay("input");
+    this.createDOMEventRelay("search");
     
     this.callback(arguments);
     

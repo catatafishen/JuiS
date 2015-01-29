@@ -52,9 +52,9 @@
         defaultState.activate();
         
         //Events
-        this.createDOMEventRelay("onclick", "click");
-        this.createDOMEventRelay("onmousedown", "mouseDown");
-        this.createDOMEventRelay("onmouseup", "mouseUp");
+        this.createDOMEventRelay("click");
+        this.createDOMEventRelay("mousedown");
+        this.createDOMEventRelay("mouseup");
         addMouseEnterEventListener(this.node, function() {
             thisElement.createEvent({"type": "mouseEnter"});
         });
@@ -313,12 +313,13 @@
 
     this.createDOMEventRelay = function (DOMName, name) {
         var obj = {};
+        var name = name || DOMName;
         obj.element = this;
         obj.data = {};
         obj.node = this.node;
         obj.preventDefault = false;
         obj.stopPropagation = true;
-        obj.node[DOMName] = function (event) {
+        obj.node.addEventListener(DOMName, function (event) {
             //Only fire once per event. => ignore propagating events that have already fired
             if (event.Henkka_inited === undefined) { //Not a good solution. Change this!
                 obj.data.DOMEvent = event;
@@ -332,7 +333,7 @@
                     return false;
                 }
             }
-        };
+        });
         return obj;
     };
     
