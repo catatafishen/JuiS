@@ -27,6 +27,10 @@
         }
     };
     
+    this.debugProperties = function() {
+        console.log(setProperties);
+    };
+    
     this.addElement = function (element, autoRelay) {
         if (!inited) {
             this.init(element);

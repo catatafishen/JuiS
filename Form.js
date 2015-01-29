@@ -15,6 +15,8 @@
     this.toolbar.width = "50%";
     this.toolbar.display = "inline-block";
     this.toolbar.node.style.textAlign = "right";
+    this.content = this.addChild(new JuiS.Container());
+    this.content.overflowY = "auto";
     
     this.fields = {};
     this.useColumns = false;
@@ -42,7 +44,7 @@
             column.display = "inline-block";
         }
         column.node.style.verticalAlign = "top";
-        this.addChild(column);
+        this.content.addChild(column);
         return column;
     };
     

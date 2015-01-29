@@ -15,7 +15,6 @@
     var table = document.createElement("TABLE");
     var visibleRows = 0;
     table.style.width = "100%";
-    table.style.height = "100%";
     table.style.tableLayout = "fixed";
     table.style.borderCollapse = "collapse";
     var header = table.createTHead();
@@ -380,5 +379,5 @@
     
     this.callback(arguments);
 }.addMixin(JuiS.ElementMixin).addMixin(function staticSimpleTable() {
-    this.maxInitialRows = 30;
+    this.maxInitialRows = 20;
 });
