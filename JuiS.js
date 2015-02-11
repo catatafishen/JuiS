@@ -1,5 +1,4 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    console.log(JuiS);
     var oldJuiS = JuiS;
     JuiS = new (function () {
         var thisJuiS = this;

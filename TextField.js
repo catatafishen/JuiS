@@ -23,7 +23,7 @@ JuiS.TextField = function (callback) {
     this.addProperty("lineHeight", "nodeStyle");
     this.addProperty("textShadow", "nodeStyle");
     this.addProperty("textOverflow", "nodeStyle", "ellipsis");
-    this.addProperty("type", function(value) {
+    this.addProperty("inputType", function(value) {
         this.node.type = value;
     }, "text");
     
