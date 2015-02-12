@@ -73,6 +73,9 @@
         
         if (Object.observe) {
             Object.observe(properties, function(changes) {
+                //There is a problem where some values get an add-event and then an update event directly afterwards. The 
+                //update event will say that the old value was undefined even if the add event had already set a value.
+                //This might be a bug in the observer and causes some setters to be called twice (which should not make a difference)
                 changes.forEach(function (change) {
                     if (change.type === "update" || change.type === "delete") {
                         thisElement.refreshProperty(change.name);
@@ -81,7 +84,7 @@
                         //If element is not inited new properties are queued and refreshed later in the setElement-method
                         staticAddList.push(change.name);
                     } else {
-                        if (alreadyRefreshed.indexOf(change.name) === -1) {
+                        if (properties[change.name] !== undefined && alreadyRefreshed.indexOf(change.name) === -1) {
                             thisElement.refreshProperty(change.name);
                         }
                     }
