@@ -176,3 +176,10 @@ JuiS.rgba = function(red, green, blue, opacity) {
 JuiS.isArray = function(someVar) {
     return (Object.prototype.toString.call(someVar) === "[object Array]")
 }
+
+JuiS.arrayWrap = function (values) {
+    if (!Array.isArray(values)) {
+        values = [values];
+    }
+    return values;
+};
