@@ -85,7 +85,7 @@ var GUI_ContainerMixin = JuiS.ContainerMixin = function () {
         return newChild;
 	};
 
-	this.removeChild = function (child, view) {
+	this.removeChild = function (child) {
         var view = view ? this.views[view] : this.activeView;
         if (typeof child === "number") {
             view.children.splice(child, 1);

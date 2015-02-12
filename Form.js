@@ -3,8 +3,7 @@
     this.initContainer();
     
     this.TextFields = new JuiS.ElementArray(JuiS.TextField);
-    this.TextLists = new JuiS.ElementArray(JuiS.TextList);
-    this.AllFields = new JuiS.ElementArray(JuiS.Container);
+    this.TextFields.init();
     
     var top = this.addChild(new JuiS.Container());
     this.header = top.addChild(new JuiS.Label());
@@ -75,14 +74,14 @@
     
     this.reset = function () {
         Object.keys(this.fields).forEach(function (key) {
-            this.fields[key].setValue(this.initialValues[key]);
+            this.fields[key].value = this.initialValues[key];
         }, this);
     };
     
     this.empty = function () {
         this.initialValues = {};
         Object.keys(this.fields).forEach(function (key) {
-            this.fields[key].setValue("");
+            this.fields[key].value = "";
         }, this);
     };
     
@@ -104,7 +103,6 @@
             var field = new JuiS[formElementDescription.type];
             this.addFieldReference(formElementDescription.name, field);
             this.getElementArray(formElementDescription.type).addElement(field);
-            this.AllFields.addElement(field);
             Object.assign(field, formElementDescription);
             this.initialValues[formElementDescription.name] = formElementDescription.value;
             

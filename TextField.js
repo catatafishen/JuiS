@@ -39,8 +39,4 @@ JuiS.TextField = function (callback) {
     this.getValue = function () {
         return this.node.value;
     };
-    
-    this.setValue = function (value) {
-        this.node.value = value;
-    };
 });
