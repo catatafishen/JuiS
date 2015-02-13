@@ -25,12 +25,17 @@
         }
     };
     
-    var createSelectionChangedEvent = function () {
+    this.getValue = function () {
         var keyList = [];
         selection.forEach(function (element) {
             keyList.push(element.key);
         });
-        thatTextList.trigger("change", keyList);
+        return keyList;
+    };
+    
+    var createSelectionChangedEvent = function () {
+
+        thatTextList.trigger("change", thatTextList.getValue());
     };
     
     var select = function(elements) {
@@ -128,6 +133,7 @@
     this.borderStyle = "inset";
     this.items.borderWidth = "1px";
     this.items.padding = "5px";
+    this.items.margin = "1px";
     this.items.selected.backgroundColor = "#CCCCCC";
     
     this.callback(arguments);
@@ -141,6 +147,5 @@
     this.setValue = function (values) {
         this.clearSelection();
         this.select(values);
-    };
-    
+    };    
 });
