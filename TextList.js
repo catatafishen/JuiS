@@ -133,7 +133,7 @@
     this.borderStyle = "inset";
     this.items.borderWidth = "1px";
     this.items.padding = "5px";
-    this.items.margin = "1px";
+    this.items.marginBottom = "1px";
     this.items.selected.backgroundColor = "#CCCCCC";
     
     this.callback(arguments);

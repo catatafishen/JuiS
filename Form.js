@@ -75,7 +75,11 @@
     
     this.reset = function () {
         Object.keys(this.fields).forEach(function (key) {
-            this.fields[key].setValue(this.initialValues[key]);
+            if (this.initialValues[key] !== undefined) {
+                this.fields[key].setValue(this.initialValues[key]);
+            } else {
+                this.fields[key].setValue(null);
+            }
         }, this);
     };
     
