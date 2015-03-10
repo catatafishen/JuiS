@@ -3,12 +3,22 @@ JuiS.TextField = function (callback) {
     
     this.initElement("input");
     this.node.type = "text";
+    this.node.style.WebkitAppearance = "none";
     
     this.createDOMEventRelay("focus");
     this.createDOMEventRelay("blur");
     this.createDOMEventRelay("change");
     this.createDOMEventRelay("input");
     this.createDOMEventRelay("search");
+    
+    var focusState = this.createState("focus");
+    
+    this.on("focus", function () {
+        focusState.activate();
+    });
+    this.on("blur", function () {
+        focusState.deactivate();
+    });
     
     this.callback(arguments);
     
@@ -21,6 +31,7 @@ JuiS.TextField = function (callback) {
     this.addProperty("fontWeight", "nodeStyle");
     this.addProperty("textAlign", "nodeStyle");
     this.addProperty("lineHeight", "nodeStyle");
+    this.addProperty("verticalAlign", "nodeStyle");
     this.addProperty("textShadow", "nodeStyle");
     this.addProperty("textOverflow", "nodeStyle", "ellipsis");
     this.addProperty("inputType", function(value) {

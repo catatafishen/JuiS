@@ -20,6 +20,13 @@ var GUI_ContainerMixin = JuiS.ContainerMixin = function () {
         return view;
     };
     
+    this.getChildren = function (viewName) {
+        if (typeof viewName === "string") {
+            return this.views[viewName];
+        }
+        return this.views;
+    };
+    
     this.showView = function (name) {
         if (!this.views[name]) {
             this.createView(name);

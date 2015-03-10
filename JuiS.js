@@ -1,21 +1,34 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
-    var oldJuiS = JuiS;
-    JuiS = new (function () {
-        var thisJuiS = this;
-        Object.keys(oldJuiS).forEach(function (key) {
-            this[key] = oldJuiS[key];
+﻿(function (JuiS) {
+    var JuiS = window.JuiS = new (function () {
+        Object.keys(JuiS).forEach(function (key) {
+            this[key] = JuiS[key];
         }, this);
-        this.initElement(document.body);
-        this.window = window;
+    }.addMixin(JuiS.ElementMixin))();
+    
+    document.addEventListener("DOMContentLoaded", function () {
+        JuiS.initElement(document.body);
+        JuiS.window = window;
         window.addEventListener("scroll", function (event) {
             if (event.target === document) {
-                thisJuiS.trigger("scroll");
+                JuiS.trigger("scroll");
             }
         });
-    }.addMixin(oldJuiS.ElementMixin))();
+        
+        JuiS.document = new (function () {
+            this.initElement(document.documentElement);
+            this.nextListenable = JuiS;
+        }.addMixin(JuiS.ElementMixin))();
+        
+        JuiS.trigger("init");
+    });
     
-    JuiS.document = new (function () {
-        this.initElement(document.documentElement);
-        this.nextListenable = JuiS;
-    }.addMixin(oldJuiS.ElementMixin))();
-});
+    JuiS.component = function (componentName, constructor) {
+        var args = [].slice.call(arguments, 1);
+        function Component() {
+            return JuiS[componentName].apply(this, args);
+        }
+        Component.prototype = JuiS[componentName].prototype;
+        return new Component();
+    };
+    
+}(JuiS || (window.JuiS = {})));

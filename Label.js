@@ -14,6 +14,7 @@
     this.addProperty("fontWeight", "nodeStyle");
     this.addProperty("textAlign", "nodeStyle");
     this.addProperty("textRotation", "nodeStyle");
+    this.addProperty("verticalAlign", "nodeStyle");
     this.addProperty("lineHeight", "nodeStyle");
     this.addProperty("textShadow", "nodeStyle");
     this.addProperty("whiteSpace", "nodeStyle", "nowrap");

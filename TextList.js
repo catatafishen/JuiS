@@ -123,7 +123,7 @@
         clearData();
         data = JuiS.arrayWrap(data)
         data.forEach(function (item) {
-            this.addElement(item.key, item.value);
+            this.addElement(item[this.dataKey], item[this.dataValue]);
         }, this);
     });
     
@@ -135,6 +135,9 @@
     this.items.padding = "5px";
     this.items.marginBottom = "1px";
     this.items.selected.backgroundColor = "#CCCCCC";
+    
+    this.dataKey = "key";
+    this.dataValue = "value";
     
     this.callback(arguments);
     
