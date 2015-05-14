@@ -18,7 +18,7 @@
             this.initElement(document.documentElement);
             this.nextListenable = JuiS;
         }.addMixin(JuiS.ElementMixin))();
-        
+        JuiS.inited = true;
         JuiS.trigger("init");
     });
     

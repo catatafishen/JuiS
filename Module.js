@@ -99,12 +99,22 @@
             attachementRules = [];
         
         this.controller = function(controllerBody, viewName) {
-            if (viewName !== undefined) {
-                viewController(controllerBody, viewName);
+            if (JuiS.inited) {
+                if (viewName !== undefined) {
+                    viewController(controllerBody, viewName);
+                } else {
+                    controllerBody.apply(this);
+                }
             } else {
-                controllerBody.apply(this);
+                controllers.push({"controllerBody": controllerBody, "viewName": viewName});
             }
         };
+        
+        JuiS.on("init", function () {
+            controllers.forEach(function (controller) {
+                thisModule.controller(controller.controllerBody, controller.viewName);
+            });
+        });
         
         this.view = function(viewName, rootComponent, childNames) {
             var childNames = childNames || [];
@@ -171,6 +181,9 @@
     var modules = {};
 
     JuiS.module = function (moduleName, controllerBody) {
+        if (JuiS !== window.JuiS) {
+            JuiS = window.JuiS;
+        }
         if (modules[moduleName] === undefined) {
             modules[moduleName] = new Module();
         }
