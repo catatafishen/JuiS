@@ -12,6 +12,32 @@
             runViewController(viewName);
         }
         
+        function resolveAttachements() {
+            attachementRules.forEach(function (rule, index) {
+                if (views[rule.childName] !== undefined) {
+                    if (rule.parent === "root") {
+                        thisModule.rootView = views[rule.childName];
+                        thisModule.trigger("rootViewAttached", {rootView: thisModule.rootView});
+                        attachementRules.splice(index, 1);
+                    } else {
+                        if (typeof rule.parent === "string") {
+                            if (views[rule.parent] !== undefined) {
+                                if (typeof views[rule.parent].attachView === "function") {
+                                    views[rule.parent].attachView(views[rule.childName]);
+                                    attachementRules.splice(index, 1);
+                                } else {
+                                    throw new Error("attachView must be defined on parent")
+                                }
+                            }
+                        } else {
+                            rule.parent.addChild(views[rule.childName], rule.name);
+                            attachementRules.splice(index, 1);
+                        }
+                    }
+                }
+            });
+        }
+        
         function runViewController(viewName) {
             var children = {};
             if (viewControllers[viewName] !== undefined
@@ -69,7 +95,8 @@
             viewControllers = {},
             views = {},
             viewParentNames = [],
-            viewChildNames = [];
+            viewChildNames = [],
+            attachementRules = [];
         
         this.controller = function(controllerBody, viewName) {
             if (viewName !== undefined) {
@@ -83,6 +110,7 @@
             var childNames = childNames || [];
             if (views[viewName] === undefined) {
                 views[viewName] = rootComponent;
+                resolveAttachements();
                 viewChildNames[viewName] = childNames;
                 childNames.forEach(function (childName) {
                     viewParentNames[childName] = viewParentNames[childName] || [];
@@ -99,7 +127,6 @@
         };
         
         this.service = function (serviceName) {
-            // console.log(serviceName);
             if (services[serviceName] === undefined) {
                 services[serviceName] = new JuiS.Service();
             }
@@ -107,7 +134,6 @@
         };
         
         this.hook = function (hookName, attachmentFunction) {
-            
             if (hooks[hookName] === undefined) {
                 hooks[hookName] = new Hook();
             }
@@ -132,17 +158,14 @@
             return stylers[stylerName];
         };
         
-        // this.initialize = function () {
-            // if (initialized) {
-                // return;
-            // }
-            // var controller;
-            // initialized = true;
-            // while (controllers.length > 0) {
-                // controller = controllers.shift();
-                // this.controller(controller.body, controller.view);
-            // }
-        // };
+        this.attachView = function(parent, childName, viewName) {
+            if (childName === undefined) {
+                childName = parent;
+                parent = "root";
+            }
+            attachementRules.push({childName: childName, parent: parent, name: viewName});
+            resolveAttachements();
+        };
     }.addMixin(JuiS.ListenableMixin);
     
     var modules = {};
@@ -153,7 +176,6 @@
         }
         if (controllerBody !== undefined) {
             modules[moduleName].controller(controllerBody);
-            // modules[moduleName].initialize();
         }
         return modules[moduleName];
     };
